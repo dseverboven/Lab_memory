@@ -16,12 +16,9 @@ public class Driver {
         if (result.get(0).equals("1")) {
 //            firstFit();
             String[] temp;
-            for (int i = 2; i < result.size(); i++) {
-                temp = result.get(i).split(" ");
-                System.out.println((temp[0]));
-//                System.out.println(result.get(i));
-
-            }
+            MemorySystem ff = new MemorySystem();
+            ff.firstFit(result);
+//
             System.out.println("ff");
         }
         if (result.get(0).equals("2")) {

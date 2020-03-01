@@ -1,34 +1,38 @@
 public class MemoryBlock {
 
-    String pid;
-
-    @Override
-    public String toString() {
-        System.out.println(getPid() + " " +  getLength());
-        return getPid();
-    }
-
+    int pid;
     int start;
     int length;
-    boolean hole = false;
+    @Override
+    public String toString() {
+        if (pid >= 0)
+            return "From " + getStart() + " len: " +  getLength() + "pid:" + getPid();
+        else
+            return "From " + getStart() + " len: " +  getLength() + " is empty.";
 
-    public MemoryBlock(String pid, int start, int length) {
+    }
+
+
+
+    public MemoryBlock(int start, int length, int pid) {
         this.pid = pid;
         this.start = start;
         this.length = length;
     }
 
-    public MemoryBlock(int start, int length){
+    public MemoryBlock(int start, int length) {
+        this.pid = -1;
         this.start = start;
         this.length = length;
-        this.hole = true;
     }
 
-    public String getPid() {
+
+
+    public int getPid() {
         return pid;
     }
 
-    public void setPid(String pid) {
+    public void setPid(int pid) {
         this.pid = pid;
     }
 
@@ -46,14 +50,10 @@ public class MemoryBlock {
 
     public void setLength(int length) {
         this.length = length;
-    }
 
-    public boolean isHole() {
-        return hole;
     }
-
-    public void setHole(boolean hole) {
-        this.hole = hole;
+    public boolean isEmpty(){
+        return getPid()>= 0;
     }
 
 }

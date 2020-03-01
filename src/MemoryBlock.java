@@ -1,6 +1,13 @@
 public class MemoryBlock {
 
     String pid;
+
+    @Override
+    public String toString() {
+        System.out.println(getPid() + " " +  getLength());
+        return getPid();
+    }
+
     int start;
     int length;
     boolean hole = false;

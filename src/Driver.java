@@ -15,7 +15,7 @@ public class Driver {
         List<String> result = Files.readAllLines(Paths.get(String.valueOf(s)));
         if (result.get(0).equals("1")) {
 //            firstFit();
-            String[] temp;
+
             MemorySystem ff = new MemorySystem();
             ff.firstFit(result);
 //
@@ -34,8 +34,6 @@ public class Driver {
                 System.out.println(result.get(i));
                 System.out.println("wf");
             }
-
-            new MemoryBlock("asd", 1, 2);
 
         }
         return result;

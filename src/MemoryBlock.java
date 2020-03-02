@@ -6,9 +6,9 @@ public class MemoryBlock {
     @Override
     public String toString() {
         if (pid >= 0)
-            return "From " + getStart() + " len: " +  getLength() + "pid:" + getPid();
+            return "From " + getStart() + " - " + (getStart() + getLength()) + " len: " +  getLength() + " pid:" + getPid();
         else
-            return "From " + getStart() + " len: " +  getLength() + " is empty.";
+            return "From " + getStart() + " - " + (getStart() + getLength()) + " len: " +  getLength() + " is empty.";
 
     }
 

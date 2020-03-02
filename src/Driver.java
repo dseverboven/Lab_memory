@@ -7,7 +7,7 @@ import java.util.Scanner;
 
 public class Driver {
 
-    public enum Type{
+    public enum Type {
         FIRST,
         BEST,
         WORST
@@ -22,8 +22,6 @@ public class Driver {
         List<String> result = Files.readAllLines(Paths.get(String.valueOf(s)));
 
 
-
-
         if (result.get(0).equals("1")) {
             algorithm = Type.FIRST;
         }
@@ -33,8 +31,6 @@ public class Driver {
         if (result.get(0).equals("3")) {
             algorithm = Type.WORST;
         }
-
-
 
 
         MemorySystem ff = new MemorySystem();

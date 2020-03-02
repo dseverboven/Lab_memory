@@ -22,12 +22,12 @@ public class MemorySystem {
         System.out.println(total_mem);
         for (int i = 2; i < file_array.size(); i++) {
             temp = file_array.get(i).split(" ");
-        //    System.out.println(Arrays.toString(temp));
+            //    System.out.println(Arrays.toString(temp));
 
             if (temp[0].equals("A")) {
 
-         //       System.out.println("in if A" + Arrays.toString(temp));
-                MemoryBlock mb = null;
+                //       System.out.println("in if A" + Arrays.toString(temp));
+                MemoryBlock node = null;
                 int processLength = Integer.parseInt(temp[6]);
                 int pid = Integer.parseInt(temp[3]);
                 int j;
@@ -36,14 +36,15 @@ public class MemorySystem {
                 for (j = 0; j < block_list.size(); j++) {
                     MemoryBlock current = block_list.get(j);
                     if (current.isEmpty() && current.getLength() >= processLength) {
-                        mb = current;
+                        node = current;
                         break;
                     }
                 }
                 // TODO else if Method 2
-                if (mb != null) {
-                    MemoryBlock newBlock = new MemoryBlock(mb.getStart(), processLength, pid);
-                    mb.setStart(mb.getStart() + processLength);
+                if (node != null) {
+                    MemoryBlock newBlock = new MemoryBlock(node.getStart(), processLength, pid);
+                    node.setStart(node.getStart() + processLength);
+                    node.setLength(node.getLength() - processLength);
                     block_list.add(j, newBlock);
                 }
 
@@ -97,16 +98,17 @@ public class MemorySystem {
                     System.out.println(mb);
                 }
             }
+
             // System.out.println((temp[0]));
 
             //System.out.println(file_array.get(i));
 
         }
 
-        for (MemoryBlock memoryBlock : block_list) {
-
-            memoryBlock.toString();
-        }
+//        for (MemoryBlock memoryBlock : block_list) {
+//
+//            memoryBlock.toString();
+//        }
 
 
     }

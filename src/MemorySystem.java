@@ -107,6 +107,36 @@ public class MemorySystem {
             System.out.println("Error at b_allocate");
         }
 
+    }
+
+    public void w_allocate(int pid, int processLength) {
+
+        MemoryBlock best_node = null;
+        int index = -1;
+        int size = -1;
+
+        // TODO if Method 1
+        for (int j = 0; j < block_list.size(); j++) {
+
+            MemoryBlock current = block_list.get(j);
+            boolean fits = current.isEmpty() && current.getLength() >= processLength;
+            if (fits && (size == -1 || current.getLength() > size)) {
+
+                size = current.getLength();
+                index = j;
+                best_node = current;
+
+            }
+        }
+
+        if (index != -1 && best_node != null) {
+            MemoryBlock newBlock = new MemoryBlock(best_node.getStart(), processLength, pid);
+            best_node.setStart(best_node.getStart() + processLength);
+            best_node.setLength(best_node.getLength() - processLength);
+            block_list.add(index, newBlock);
+        } else {
+            System.out.println("Error at b_allocate");
+        }
 
     }
 
@@ -137,7 +167,7 @@ public class MemorySystem {
                 }
 
                 if (Driver.algorithm == Driver.Type.WORST) {
-                    ff_allocate(pid, processLength);
+                    w_allocate(pid, processLength);
                 }
 
                 print();
@@ -163,71 +193,6 @@ public class MemorySystem {
             System.out.println(mb);
         }
     }
-
-//    public void bestFit(List<String> file_array) {
-//
-//
-//        int best_mem = (Integer.parseInt(file_array.get(1)));
-//        block_list.add(new MemoryBlock(0, best_mem));
-//
-//
-//        System.out.println(best_mem);
-//        for (int i = 2; i < file_array.size(); i++) {
-//            temp = file_array.get(i).split(" ");
-//
-//
-//            if (temp[0].equals("A")) {
-//
-//                //       System.out.println("in if A" + Arrays.toString(temp));
-//                MemoryBlock node = null;
-//                int processLength = Integer.parseInt(temp[6]);
-//                int pid = Integer.parseInt(temp[3]);
-//                int j;
-//                ArrayList<MemoryBlock> temp = null;
-//
-//                // TODO if Method 1
-//                for (j = 0; j < block_list.size(); j++){
-//                    MemoryBlock best_cur = block_list.get(j);
-//                    if (best_cur.isEmpty()){
-//                        temp.add(best_cur);
-//
-//                    }
-//                }
-////                    MemoryBlock current = block_list.get(j);
-////                    if (current.isEmpty() && current.getLength() >= processLength) {
-////                        node = current;
-////                        break;
-////                    }
-////                }
-//                // TODO else if Method 2
-////                if (node != null) {
-////                    MemoryBlock newBlock = new MemoryBlock(node.getStart(), processLength, pid);
-////                    node.setStart(node.getStart() + processLength);
-////                    node.setLength(node.getLength() - processLength);
-////                    block_list.add(j, newBlock);
-////                }
-//
-//
-//            } else if (temp[0].equals("D")) {
-//                deallocate();
-//            } else {
-//
-//                for (MemoryBlock mb : block_list) {
-//                    System.out.println(mb);
-//                }
-//            }
-//
-//
-//
-//        }
-//
-////        for (MemoryBlock memoryBlock : block_list) {
-////
-////            memoryBlock.toString();
-////        }
-//
-//
-//    }
 
 
 }

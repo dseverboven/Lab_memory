@@ -53,7 +53,10 @@ public class MemoryBlock {
 
     }
     public boolean isEmpty(){
-        return getPid()>= 0;
+        return getPid()< 0;
+    }
+    public void release() {
+        setPid(-1);
     }
 
 }

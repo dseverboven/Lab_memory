@@ -3,6 +3,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import static java.lang.System.exit;
+
 public class MemorySystem {
 
     String[] temp;
@@ -57,28 +59,55 @@ public class MemorySystem {
                 block_list.remove(j + 1);
             }
 
-
         }
     }
 
-    public void ff_allocate(int pid, int processLength) {
+    public void compaction() {
+
+        // TODO if Method 1
+        int len = 0;
+//        int last = 0;
+        for (int j = 0; j < block_list.size(); j++) {
+            MemoryBlock current = block_list.get(j);
+            if (current.isEmpty()) {
+
+                len = current.getLength() + len;
+                block_list.remove(current);
+
+            }
+        }
+        MemoryBlock m = block_list.getLast();
+        int start = m.getStart() + m.getLength();
+        block_list.addLast(new MemoryBlock(start, len));
+        System.out.print("total legnth is: " + len + "\n");
+
+        System.out.println(block_list);
+    }
+
+    public boolean ff_allocate(int pid, int processLength) {
 
         // TODO if Method 1
         for (int j = 0; j < block_list.size(); j++) {
             MemoryBlock current = block_list.get(j);
             if (current.isEmpty() && current.getLength() >= processLength) {
 
-                MemoryBlock newBlock = new MemoryBlock(current.getStart(), processLength, pid);
-                current.setStart(current.getStart() + processLength);
-                current.setLength(current.getLength() - processLength);
-                block_list.add(j, newBlock);
+                settingMemBlock(pid, processLength, j, current);
 
-                break;
+                return true;
+
             }
         }
+        return false;
     }
 
-    public void b_allocate(int pid, int processLength) {
+    private void settingMemBlock(int pid, int processLength, int j, MemoryBlock current) {
+        MemoryBlock newBlock = new MemoryBlock(current.getStart(), processLength, pid);
+        current.setStart(current.getStart() + processLength);
+        current.setLength(current.getLength() - processLength);
+        block_list.add(j, newBlock);
+    }
+
+    public boolean b_allocate(int pid, int processLength) {
 
         MemoryBlock best_node = null;
         int index = -1;
@@ -99,21 +128,21 @@ public class MemorySystem {
         }
 
         if (index != -1 && best_node != null) {
-            MemoryBlock newBlock = new MemoryBlock(best_node.getStart(), processLength, pid);
-            best_node.setStart(best_node.getStart() + processLength);
-            best_node.setLength(best_node.getLength() - processLength);
-            block_list.add(index, newBlock);
+            settingMemBlock(pid, processLength, index, best_node);
+            return true;
         } else {
-            System.out.println("Error at b_allocate");
+            return false;
+//            System.out.println("Error at b_allocate");
         }
 
     }
 
-    public void w_allocate(int pid, int processLength) {
+    public boolean w_allocate(int pid, int processLength) {
 
         MemoryBlock best_node = null;
         int index = -1;
         int size = -1;
+        boolean comp;
 
         // TODO if Method 1
         for (int j = 0; j < block_list.size(); j++) {
@@ -130,16 +159,16 @@ public class MemorySystem {
         }
 
         if (index != -1 && best_node != null) {
-            MemoryBlock newBlock = new MemoryBlock(best_node.getStart(), processLength, pid);
-            best_node.setStart(best_node.getStart() + processLength);
-            best_node.setLength(best_node.getLength() - processLength);
-            block_list.add(index, newBlock);
+            settingMemBlock(pid, processLength, index, best_node);
+            return true;
         } else {
-            System.out.println("Error at b_allocate");
+            return false;
+//            System.out.println("Error at w_allocate");
         }
 
     }
 
+    // Todo compaction as sep function inside of find fit
 
     public void findFit(List<String> file_array) {
 
@@ -159,15 +188,33 @@ public class MemorySystem {
                 System.out.println("Allocating " + pid);
 
                 if (Driver.algorithm == Driver.Type.FIRST) {
-                    ff_allocate(pid, processLength);
+                    if (!ff_allocate(pid, processLength)) {
+                        compaction();
+                        if (!ff_allocate(pid, processLength)) {
+                            System.out.println("failed");
+                            exit(0);
+                        }
+                    }
                 }
 
                 if (Driver.algorithm == Driver.Type.BEST) {
-                    b_allocate(pid, processLength);
+                    if (!b_allocate(pid, processLength)) {
+                        compaction();
+                        if (!b_allocate(pid, processLength)) {
+                            System.out.println("failed");
+                            exit(0);
+                        }
+                    }
                 }
 
                 if (Driver.algorithm == Driver.Type.WORST) {
-                    w_allocate(pid, processLength);
+                    if (!w_allocate(pid, processLength)) {
+                        compaction();
+                        if (!w_allocate(pid, processLength)) {
+                            System.out.println("failed");
+                            exit(0);
+                        }
+                    }
                 }
 
                 print();
@@ -182,7 +229,6 @@ public class MemorySystem {
                 //print();test.txt
             }
 
-
         }
     }
 
@@ -191,7 +237,9 @@ public class MemorySystem {
         System.out.println();
         for (MemoryBlock mb : block_list) {
             System.out.println(mb);
+
         }
+
     }
 
 

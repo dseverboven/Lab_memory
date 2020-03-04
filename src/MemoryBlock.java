@@ -49,8 +49,9 @@ public class MemoryBlock {
 
     public void setLength(int length) {
         this.length = length;
-
     }
+
+
 
     public boolean isEmpty() {
         return getPid() < 0;

@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static java.lang.System.exit;
 
@@ -9,6 +6,7 @@ public class MemorySystem {
 
     String[] temp;
     LinkedList<MemoryBlock> block_list = new LinkedList<>();
+    Set<MemoryBlock> tree_block = new TreeSet<>(Comparator.comparing(MemoryBlock::getStart));
 
 
     public void deallocate(int pid) {
@@ -79,7 +77,19 @@ public class MemorySystem {
         MemoryBlock m = block_list.getLast();
         int start = m.getStart() + m.getLength();
         block_list.addLast(new MemoryBlock(start, len));
-        System.out.print("total legnth is: " + len + "\n");
+
+        block_list.getFirst().setStart(0);
+
+        int new_len = 0;
+        for (int i = 1; i < block_list.size(); i++) {
+
+            int x = block_list.get(i - 1).getLength();
+            new_len = x + new_len;
+            block_list.get(i).setStart(new_len);
+
+        }
+
+        System.out.print(" COMPACTING total length is: " + len + "\n");
 
         System.out.println(block_list);
     }
@@ -107,6 +117,7 @@ public class MemorySystem {
         block_list.add(j, newBlock);
     }
 
+
     public boolean b_allocate(int pid, int processLength) {
 
         MemoryBlock best_node = null;
@@ -132,7 +143,7 @@ public class MemorySystem {
             return true;
         } else {
             return false;
-//            System.out.println("Error at b_allocate");
+
         }
 
     }
@@ -142,7 +153,7 @@ public class MemorySystem {
         MemoryBlock best_node = null;
         int index = -1;
         int size = -1;
-        boolean comp;
+
 
         // TODO if Method 1
         for (int j = 0; j < block_list.size(); j++) {
@@ -174,6 +185,7 @@ public class MemorySystem {
 
         int total_mem = (Integer.parseInt(file_array.get(1)));
         block_list.add(new MemoryBlock(0, total_mem));
+        tree_block.add(new MemoryBlock(0, total_mem));
 
 
         System.out.println(total_mem);
@@ -239,6 +251,9 @@ public class MemorySystem {
             System.out.println(mb);
 
         }
+//        for (MemoryBlock bb : tree_block){
+//            System.out.println("tree block " + bb);
+//        }
 
     }
 

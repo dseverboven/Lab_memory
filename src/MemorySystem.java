@@ -5,177 +5,163 @@ import static java.lang.System.exit;
 public class MemorySystem {
 
     String[] temp;
-    LinkedList<MemoryBlock> block_list = new LinkedList<>();
-    Set<MemoryBlock> tree_block = new TreeSet<>(Comparator.comparing(MemoryBlock::getStart));
+    //    LinkedList<MemoryBlock> block_list = new LinkedList<>();
+    TreeSet<MemoryBlock> block_list;
+    TreeSet<MemoryBlock> empty_block;
+
+    HashMap<Integer, MemoryBlock> map_pid;
 
 
     public void deallocate(int pid) {
-        {
-            int j;
-            for (j = 0; j < block_list.size(); j++) {
-                MemoryBlock current = block_list.get(j);
-                if (current.getPid() == pid) {
-                    break;
-                }
-            }
-//                if (j == block_list.size()) {
-//                    continue;
-//                }
-            block_list.get(j).release();
-            if (j == 0) {
-                if (block_list.size() == 1 || !block_list.get(1).isEmpty()) {
-                    block_list.get(j).release();
-                } else {
-                    block_list.get(0).setLength(block_list.get(0).getLength() + block_list.get(1).getLength());
-                    block_list.get(j).release();
-                    block_list.remove(1);
-                }
-            } else if (j == block_list.size() - 1) {
-                if (!block_list.get(j - 1).isEmpty()) {
-                    block_list.get(j).release();
-                } else {
-                    block_list.get(j - 1).setLength(block_list.get(j - 1).getLength() + block_list.get(j).getLength());
-                    block_list.remove(j);
-                }
 
-            } else if (block_list.get(j - 1).isEmpty() && block_list.get(j + 1).isEmpty()) {
-                block_list.get(j - 1).setLength(block_list.get(j - 1).getLength()
-                    + block_list.get(j).getLength() + block_list.get(j + 1).getLength());
-                block_list.remove(j + 1);
-                block_list.remove(j);
+        MemoryBlock del_block = map_pid.get(pid);
+        del_block.release();
 
-            } else if (!block_list.get(j - 1).isEmpty() && !block_list.get(j + 1).isEmpty()) {
-                block_list.get(j).release();
 
-            } else if (block_list.get(j - 1).isEmpty()) {
-                block_list.get(j - 1).setLength(block_list.get(j - 1).getLength() + block_list.get(j).getLength());
-                block_list.remove(j);
+        MemoryBlock lower = block_list.lower(del_block);
 
-            } else {
-                block_list.get(j).setLength(block_list.get(j).getLength() + block_list.get(j + 1).getLength());
-                block_list.get(j).release();
-                block_list.remove(j + 1);
-            }
+        MemoryBlock higher = block_list.higher(del_block);
+
+
+        //left
+        if (lower.getPid() == -1 && higher.getPid() != -1) {
+            block_list.lower(del_block);
+
+            empty_block.add(del_block);
+            ;
+
 
         }
+        //right
+        if (higher.getPid() == -1 && lower.getPid() != -1) {
+
+            ;
+        }
+        //both
+        if (higher.getPid() == -1 && lower.getPid() == -1) {
+            int s_start = lower.getStart();
+            int new_size = lower.getLength() + del_block.getLength() + higher.getLength();
+            MemoryBlock new_empty = new MemoryBlock(s_start, new_size);
+            block_list.remove(lower);
+            block_list.remove(higher);
+            block_list.remove(del_block);
+
+            empty_block.remove(lower);
+            empty_block.remove(higher);
+            empty_block.remove(del_block);
+
+            block_list.add(new_empty);
+            empty_block.add(new_empty);
+
+
+        }
+
+        block_list.remove(del_block);
+
+
     }
 
-    public void compaction() {
-
-        // TODO if Method 1
-        int len = 0;
-//        int last = 0;
-        for (int j = 0; j < block_list.size(); j++) {
-            MemoryBlock current = block_list.get(j);
-            if (current.isEmpty()) {
-
-                len = current.getLength() + len;
-                block_list.remove(current);
-
-            }
-        }
-        MemoryBlock m = block_list.getLast();
-        int start = m.getStart() + m.getLength();
-        block_list.addLast(new MemoryBlock(start, len));
-
-        block_list.getFirst().setStart(0);
-
-        int new_len = 0;
-        for (int i = 1; i < block_list.size(); i++) {
-
-            int x = block_list.get(i - 1).getLength();
-            new_len = x + new_len;
-            block_list.get(i).setStart(new_len);
-
-        }
-
-        System.out.print(" COMPACTING total length is: " + len + "\n");
-
-        System.out.println(block_list);
-    }
+//    public void compaction() {
+//
+//        // TODO if Method 1
+//        int len = 0;
+////        int last = 0;
+//        for (int j = 0; j < block_list.size(); j++) {
+//            MemoryBlock current = block_list.get(j);
+//            if (current.isEmpty()) {
+//
+//                len = current.getLength() + len;
+//                block_list.remove(current);
+//
+//            }
+//        }
+//        MemoryBlock m = block_list.getLast();
+//        int start = m.getStart() + m.getLength();
+//        block_list.addLast(new MemoryBlock(start, len));
+//
+//        block_list.getFirst().setStart(0);
+//
+//        int new_len = 0;
+//        for (int i = 1; i < block_list.size(); i++) {
+//
+//            int x = block_list.get(i - 1).getLength();
+//            new_len = x + new_len;
+//            block_list.get(i).setStart(new_len);
+//
+//        }
+//
+//        System.out.print(" COMPACTING total length is: " + len + "\n");
+//
+//        System.out.println(block_list);
+//    }
 
     public boolean ff_allocate(int pid, int processLength) {
 
         // TODO if Method 1
-        for (int j = 0; j < block_list.size(); j++) {
-            MemoryBlock current = block_list.get(j);
-            if (current.isEmpty() && current.getLength() >= processLength) {
 
-                settingMemBlock(pid, processLength, j, current);
+
+        Iterator<MemoryBlock> itr = block_list.iterator();
+        while (itr.hasNext()) {
+            if (itr.next().isEmpty() && itr.next().getLength() >= processLength) {
+
+                MemoryBlock newBlock = new MemoryBlock(-1, processLength, pid);
+                settingMemBlock(newBlock, itr.next());
 
                 return true;
 
             }
         }
+
         return false;
     }
 
-    private void settingMemBlock(int pid, int processLength, int j, MemoryBlock current) {
-        MemoryBlock newBlock = new MemoryBlock(current.getStart(), processLength, pid);
-        current.setStart(current.getStart() + processLength);
-        current.setLength(current.getLength() - processLength);
-        block_list.add(j, newBlock);
+    private void settingMemBlock(MemoryBlock toAdd, MemoryBlock current) {
+
+        toAdd.setStart(current.getStart());
+
+        empty_block.remove(current);
+        current.setStart(current.getStart() + toAdd.getLength());
+        current.setLength(current.getLength() - toAdd.getLength());
+        empty_block.add(current);
+        block_list.add(toAdd);
+        map_pid.put(toAdd.pid, toAdd);
+//        empty_block.clear();
+
     }
 
 
     public boolean b_allocate(int pid, int processLength) {
 
-        MemoryBlock best_node = null;
-        int index = -1;
-        int size = -1;
+        MemoryBlock newBlock = new MemoryBlock(-1, processLength, pid);
 
-        // TODO if Method 1
-        for (int j = 0; j < block_list.size(); j++) {
+        MemoryBlock empty = empty_block.ceiling(newBlock);
 
-            MemoryBlock current = block_list.get(j);
-            boolean fits = current.isEmpty() && current.getLength() >= processLength;
-            if (fits && (size == -1 || current.getLength() < size)) {
-
-                size = current.getLength();
-                index = j;
-                best_node = current;
-
-            }
-        }
-
-        if (index != -1 && best_node != null) {
-            settingMemBlock(pid, processLength, index, best_node);
+        if (empty != null) {
+            settingMemBlock(newBlock, empty);
             return true;
         } else {
             return false;
-
         }
 
     }
 
     public boolean w_allocate(int pid, int processLength) {
-
-        MemoryBlock best_node = null;
-        int index = -1;
-        int size = -1;
+        MemoryBlock newBlock = new MemoryBlock(-1, processLength, pid);
 
 
-        // TODO if Method 1
-        for (int j = 0; j < block_list.size(); j++) {
+        MemoryBlock empty = empty_block.last();
 
-            MemoryBlock current = block_list.get(j);
-            boolean fits = current.isEmpty() && current.getLength() >= processLength;
-            if (fits && (size == -1 || current.getLength() > size)) {
-
-                size = current.getLength();
-                index = j;
-                best_node = current;
-
-            }
+        if (empty.getLength() < processLength) {
+            empty = null;
         }
 
-        if (index != -1 && best_node != null) {
-            settingMemBlock(pid, processLength, index, best_node);
+        if (empty != null) {
+            settingMemBlock(newBlock, empty);
             return true;
         } else {
             return false;
-//            System.out.println("Error at w_allocate");
         }
+
 
     }
 
@@ -184,8 +170,17 @@ public class MemorySystem {
     public void findFit(List<String> file_array) {
 
         int total_mem = (Integer.parseInt(file_array.get(1)));
+
+
+        boolean b_w_algo = Driver.algorithm == Driver.Type.BEST || Driver.algorithm == Driver.Type.WORST;
+        Comparator comp = b_w_algo ? Comparator.comparing(MemoryBlock::getLength) : Comparator.comparing(MemoryBlock::getStart);
+
+        block_list = new TreeSet<>(comp);
+        empty_block = new TreeSet<>(comp);
+
+
         block_list.add(new MemoryBlock(0, total_mem));
-        tree_block.add(new MemoryBlock(0, total_mem));
+        empty_block.add(new MemoryBlock(0, total_mem));
 
 
         System.out.println(total_mem);
@@ -201,7 +196,7 @@ public class MemorySystem {
 
                 if (Driver.algorithm == Driver.Type.FIRST) {
                     if (!ff_allocate(pid, processLength)) {
-                        compaction();
+//                        compaction();
                         if (!ff_allocate(pid, processLength)) {
                             System.out.println("failed");
                             exit(0);
@@ -211,7 +206,7 @@ public class MemorySystem {
 
                 if (Driver.algorithm == Driver.Type.BEST) {
                     if (!b_allocate(pid, processLength)) {
-                        compaction();
+//                        compaction();
                         if (!b_allocate(pid, processLength)) {
                             System.out.println("failed");
                             exit(0);
@@ -221,7 +216,7 @@ public class MemorySystem {
 
                 if (Driver.algorithm == Driver.Type.WORST) {
                     if (!w_allocate(pid, processLength)) {
-                        compaction();
+//                        compaction();
                         if (!w_allocate(pid, processLength)) {
                             System.out.println("failed");
                             exit(0);
@@ -235,7 +230,7 @@ public class MemorySystem {
 
                 int pid = Integer.parseInt(temp[3]);
                 System.out.println("Deallocating " + pid);
-                deallocate(pid);
+//                deallocate(pid);
                 print();
             } else {
                 //print();test.txt

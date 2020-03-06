@@ -161,10 +161,16 @@ public class MemorySystem {
         toAdd.setStart(current.getStart());
 
         empty_block.remove(current);
-        current.setStart(current.getStart() + toAdd.getLength());
+        block_list.remove(current);
+        current.setStart(toAdd.getStart() + toAdd.getLength());
         current.setLength(current.getLength() - toAdd.getLength());
-        empty_block.add(current);
+
         block_list.add(toAdd);
+        block_list.add(current);
+//        block_list.add(new MemoryBlock(1, 1));
+
+
+        empty_block.add(current);
         map_pid.put(toAdd.pid, toAdd);
 //        empty_block.clear();
 
@@ -214,9 +220,11 @@ public class MemorySystem {
 
 
         boolean b_w_algo = Driver.algorithm == Driver.Type.BEST || Driver.algorithm == Driver.Type.WORST;
-        Comparator comp = b_w_algo ? Comparator.comparing(MemoryBlock::getLength) : Comparator.comparing(MemoryBlock::getStart);
+        Comparator defaultcomp = Comparator.comparing(MemoryBlock::getStart);
 
-        block_list = new TreeSet<>(comp);
+        Comparator comp = b_w_algo ? Comparator.comparing(MemoryBlock::getLength) : defaultcomp;
+
+        block_list = new TreeSet<>(defaultcomp);
         empty_block = new TreeSet<>(comp);
 
         map_pid = new HashMap<>();

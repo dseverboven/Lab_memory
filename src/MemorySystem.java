@@ -1,6 +1,5 @@
 import java.util.*;
 
-import static java.lang.System.exit;
 
 public class MemorySystem {
 
@@ -25,15 +24,18 @@ public class MemorySystem {
             MemoryBlock higher = block_list.higher(del_block);
 
 
-            boolean leftMerge = lower != null && lower.getPid() == -1;
-            boolean rightMerge = higher != null && higher.getPid() == -1;
-            boolean bothMerge = leftMerge && rightMerge;
+            boolean merge_left = lower != null && lower.getPid() == -1;
+            boolean merge_right = higher != null && higher.getPid() == -1;
+            boolean merge_both = merge_left && merge_right;
+
+            int s_start = -1;
+            int new_size = -1;
 
 
-            if (bothMerge) {
-                int s_start = lower.getStart();
-                int new_size = lower.getLength() + del_block.getLength() + higher.getLength();
-                MemoryBlock new_empty = new MemoryBlock(s_start, new_size);
+            if (merge_both) {
+                s_start = lower.getStart();
+                new_size = lower.getLength() + del_block.getLength() + higher.getLength();
+
                 block_list.remove(lower);
                 block_list.remove(higher);
                 block_list.remove(del_block);
@@ -41,19 +43,16 @@ public class MemorySystem {
                 empty_block.remove(lower);
                 empty_block.remove(higher);
                 empty_block.remove(del_block);
-
-                block_list.add(new_empty);
-                empty_block.add(new_empty);
 
 
             }
 
             //left
-            else if (leftMerge) {
+            else if (merge_left) {
 
-                int s_start = lower.getStart();
-                int new_size = lower.getLength() + del_block.getLength();
-                MemoryBlock new_empty = new MemoryBlock(s_start, new_size);
+                s_start = lower.getStart();
+                new_size = lower.getLength() + del_block.getLength();
+
 
                 block_list.remove(lower);
 
@@ -63,17 +62,15 @@ public class MemorySystem {
 
                 empty_block.remove(del_block);
 
-                block_list.add(new_empty);
-                empty_block.add(new_empty);
 
             }
 
             //right
-            else if (rightMerge) {
+            else if (merge_right) {
 
-                int s_start = del_block.getStart();
-                int new_size = del_block.getLength() + higher.getLength();
-                MemoryBlock new_empty = new MemoryBlock(s_start, new_size);
+                s_start = del_block.getStart();
+                new_size = del_block.getLength() + higher.getLength();
+//
 
                 block_list.remove(higher);
                 block_list.remove(del_block);
@@ -82,15 +79,19 @@ public class MemorySystem {
                 empty_block.remove(higher);
                 empty_block.remove(del_block);
 
-                block_list.add(new_empty);
-                empty_block.add(new_empty);
+
             }
 
-            //both
 
+            empty_block.add(del_block);
+
+            if (merge_left || merge_right) {
+                del_block.setStart(s_start);
+                del_block.setLength(new_size);
+                block_list.add(del_block);
+            }
 
         }
-
 
     }
 
@@ -114,7 +115,6 @@ public class MemorySystem {
             } else {
                 mem_next.setStart(new_len);
                 new_len += mem_next.length;
-
 
             }
 
@@ -166,11 +166,18 @@ public class MemorySystem {
         current.setLength(current.getLength() - toAdd.getLength());
 
         block_list.add(toAdd);
-        block_list.add(current);
+
+
+        if (current.getLength() != 0) {
+            block_list.add(current);
 //        block_list.add(new MemoryBlock(1, 1));
 
 
-        empty_block.add(current);
+            empty_block.add(current);
+
+        }
+
+
         map_pid.put(toAdd.pid, toAdd);
 //        empty_block.clear();
 
